@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mogul Tycoon PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <style>
+        :root {
+            --bg: #0f0f1b;
+            --card: #16213e;
+            --accent: #e94560;
+            --gold: #fddb3a;
+            --text: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #header {
+            text-align: center;
+            padding: 20px;
+            background: var(--card);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #money-display { font-size: 2.5rem; color: var(--gold); font-weight: bold; margin: 0; }
+        #pps-display { font-size: 1rem; opacity: 0.7; margin: 5px 0 0 0; }
+
+        #click-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #main-button {
+            width: 160px;
+            height: 160px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 0 20px var(--accent);
+            cursor: pointer;
+            transition: transform 0.05s;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #main-button:active { transform: scale(0.9); }
+
+        .tabs { display: flex; background: var(--card); }
+        .tab {
+            flex: 1; padding: 15px; text-align: center;
+            border: none; background: none; color: white;
+            font-weight: bold; opacity: 0.5; cursor: pointer;
+        }
+        .tab.active { opacity: 1; border-bottom: 3px solid var(--accent); }
+
+        .content-area {
+            flex: 2;
+            overflow-y: auto;
+            padding: 15px;
+            background: var(--bg);
+        }
+
+        .card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-info h3 { margin: 0; font-size: 1.1rem; }
+        .card-info p { margin: 5px 0 0; font-size: 0.85rem; opacity: 0.7; }
+
+        .buy-btn {
+            background: var(--accent);
+            border: none; color: white;
+            padding: 10px 15px; border-radius: 6px;
+            font-weight: bold; cursor: pointer;
+        }
+
+        .buy-btn:disabled { background: #444; opacity: 0.5; }
+
+        /* Floating text animation */
+        .floating-text {
+            position: absolute;
+            color: var(--gold);
+            font-weight: bold;
+            animation: floatUp 0.8s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <div id="money-display">$0</div>
+        <div id="pps-display">Income: $0/s</div>
+    </div>
+
+    <div id="click-area">
+        <div id="main-button">TAP TO EARN</div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('biz')">Businesses</button>
+        <button class="tab" onclick="switchTab('upg')">Upgrades</button>
+    </div>
+
+    <div id="biz-tab" class="content-area"></div>
+    <div id="upg-tab" class="content-area" style="display:none;"></div>
+
+    <script>
+        // --- GAME STATE ---
+        let game = {
+            money: 0,
+            clickPower: 1,
+            businesses: [
+                { id: 0, name: "Lemonade Stand", cost: 15, income: 1, count: 0 },
+                { id: 1, name: "Coffee Shop", cost: 100, income: 8, count: 0 },
+                { id: 2, name: "Tech Startup", cost: 1100, income: 45, count: 0 },
+                { id: 3, name: "Auto Factory", cost: 12000, income: 200, count: 0 },
+                { id: 4, name: "Space Agency", cost: 150000, income: 1200, count: 0 }
+            ],
+            upgrades: [
+                { id: 0, name: "Stronger Hands", cost: 50, type: "click", mult: 2, bought: false },
+                { id: 1, name: "Digital Marketing", cost: 500, type: "click", mult: 5, bought: false },
+                { id: 2, name: "Automated Machines", cost: 2000, type: "income", mult: 1.5, bought: false }
+            ]
+        };
+
+        // --- CORE FUNCTIONS ---
+
+        function init() {
+            const saved = localStorage.getItem('mogulData');
+            if (saved) game = JSON.parse(saved);
+            updateUI();
+            setInterval(gameLoop, 1000);
+            setInterval(saveGame, 10000);
+        }
+
+        function gameLoop() {
+            let totalIncome = 0;
+            game.businesses.forEach(b => {
+                totalIncome += (b.count * b.income);
+            });
+            
+            // Apply income upgrades
+            game.upgrades.filter(u => u.bought && u.type === 'income').forEach(u => {
+                totalIncome *= u.mult;
+            });
+
+            game.money += totalIncome;
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('money-display').innerText = `$${Math.floor(game.money)}`;
+            
+            let pps = game.businesses.reduce((sum, b) => sum + (b.count * b.income), 0);
+            game.upgrades.filter(u => u.bought && u.type === 'income').forEach(u => pps *= u.mult);
+            document.getElementById('pps-display').innerText = `Income: $${pps.toFixed(1)}/s`;
+
+            renderBusinesses();
+            renderUpgrades();
+        }
+
+        function renderBusinesses() {
+            const container = document.getElementById('biz-tab');
+            container.innerHTML = '';
+            game.businesses.forEach(b => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-info">
+                        <h3>${b.name} (${b.count})</h3>
+                        <p>Cost: $${Math.floor(b.cost)} | +$${b.income}/s</p>
+                    </div>
+                    <button class="buy-btn" onclick="buyBiz(${b.id})" ${game.money < b.cost ? 'disabled' : ''}>BUY</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderUpgrades() {
+            const container = document.getElementById('upg-tab');
+            container.innerHTML = '';
+            game.upgrades.forEach(u => {
+                if (u.bought) return;
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-info">
+                        <h3>${u.name}</h3>
+                        <p>Cost: $${u.cost} | ${u.type === 'click' ? 'x'+u.mult+' Click' : 'x'+u.mult+' Income'}</p>
+                    </div>
+                    <button class="buy-btn" onclick="buyUpgrade(${u.id})" ${game.money < u.cost ? 'disabled' : ''}>UPGRADE</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function buyBiz(id) {
+            let b = game.businesses[id];
+            if (game.money >= b.cost) {
+                game.money -= b.cost;
+                b.count++;
+                b.cost *= 1.2;
+                updateUI();
+            }
+        }
+
+        function buyUpgrade(id) {
+            let u = game.upgrades[id];
+            if (game.money >= u.cost) {
+                game.money -= u.cost;
+                u.bought = true;
+                if (u.type === 'click') game.clickPower *= u.mult;
+                updateUI();
+            }
+        }
+
+        // Clicking Logic
+        document.getElementById('main-button').addEventListener('pointerdown', (e) => {
+            game.money += game.clickPower;
+            createFloatingText(e.clientX, e.clientY, `+$${game.clickPower}`);
+            updateUI();
+        });
+
+        function createFloatingText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.innerText = text;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function switchTab(tab) {
+            document.getElementById('biz-tab').style.display = tab === 'biz' ? 'block' : 'none';
+            document.getElementById('upg-tab').style.display = tab === 'upg' ? 'block' : 'none';
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function saveGame() {
+            localStorage.setItem('mogulData', JSON.stringify(game));
+        }
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        init();
+    </script>
+</body>
+</html>
