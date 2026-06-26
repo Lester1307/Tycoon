@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MOGUL: EMPIRE COMMAND</title>
+    <title>MOGUL COMMAND</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
@@ -18,43 +18,46 @@
             --text-dim: #9ca3af;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body {
+        body, html {
             margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background-color: var(--bg);
             color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
-            user-select: none;
         }
 
-        /* --- TOP HUD --- */
+        /* --- HUD (Top Bar) --- */
         #hud {
-            padding: 20px;
+            height: 100px;
+            padding: 15px;
             background: linear-gradient(to bottom, #111827, #05070a);
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
 
-        #money-display { font-size: 2.5rem; font-weight: 800; color: var(--gold); display: block; }
-        #level-display { font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-        #xp-bar-container {
-            width: 100%; height: 4px; background: #374151; margin-top: 10px; border-radius: 2px; overflow: hidden;
-        }
-        #xp-bar-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
+        #money-display { font-size: 2rem; font-weight: 800; color: var(--gold); }
+        #level-display { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
+        #xp-container { width: 80%; height: 4px; background: #374151; border-radius: 2px; }
+        #xp-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
 
-        /* --- MAIN VIEWPORT --- */
+        /* --- VIEWPORT (Main Area) --- */
         #viewport {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
-            padding-bottom: 100px; /* Space for bottom nav */
+            padding-bottom: 100px;
         }
 
-        /* --- CARDS & UI --- */
+        /* --- CARD DESIGN --- */
         .card {
             background: var(--panel);
             border: 1px solid rgba(255,255,255,0.05);
@@ -64,29 +67,41 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            animation: slideUp 0.4s ease-out;
+            animation: slideUp 0.3s ease-out;
         }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card-info h3 { margin: 0; font-size: 1.1rem; color: var(--text); }
-        .card-info p { margin: 4px 0 0; font-size: 0.85rem; color: var(--text-dim); }
+        .card-info h3 { margin: 0; font-size: 1rem; color: var(--accent); }
+        .card-info p { margin: 4px 0 0; font-size: 0.8rem; color: var(--text-dim); }
 
         .buy-btn {
             background: linear-gradient(135deg, var(--secondary), var(--accent));
             border: none; color: white;
-            padding: 10px 16px; border-radius: 10px;
+            padding: 10px 14px; border-radius: 8px;
             font-weight: bold; font-size: 0.8rem;
             cursor: pointer;
         }
         .buy-btn:disabled { background: #374151; opacity: 0.5; }
 
-        /* --- BOTTOM NAVIGATION --- */
+        /* --- TAPPING SECTION --- */
+        #tap-view { text-align: center; padding-top: 50px; }
+        #big-button {
+            width: 160px; height: 160px;
+            background: radial-gradient(circle, var(--accent), var(--secondary));
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 900; font-size: 1.2rem;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+            cursor: pointer;
+        }
+        #big-button:active { transform: scale(0.92); }
+
+        /* --- NAV BAR --- */
         #nav-bar {
             position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 70px;
+            bottom: 0; width: 100%; height: 70px;
             background: rgba(17, 24, 39, 0.95);
             backdrop-filter: blur(10px);
             display: flex;
@@ -97,138 +112,100 @@
         }
 
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-dim);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            font-weight: bold;
-            cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-dim); font-size: 0.65rem; font-weight: bold; cursor: pointer;
         }
-
         .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 1.4rem; margin-bottom: 4px; }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
 
-        /* --- SPECIAL SECTIONS --- */
-        .market-ticker {
-            background: #000; color: var(--success);
-            padding: 5px; font-size: 0.7rem; text-align: center;
-            border-bottom: 1px solid var(--accent);
+        /* --- FLOATING TEXT --- */
+        .float-text {
+            position: absolute; color: var(--gold); font-weight: bold;
+            pointer-events: none; animation: floatUp 0.8s ease-out forwards;
+            z-index: 100;
         }
-
-        .research-locked { opacity: 0.5; filter: grayscale(1); }
-
-        /* --- CLICKER ELEMENT --- */
-        #clicker-container {
-            text-align: center;
-            padding: 40px 0;
-        }
-        #big-tap {
-            width: 140px; height: 140px;
-            background: radial-gradient(circle, var(--accent), var(--secondary));
-            border-radius: 50%;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 900;
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
-            cursor: pointer;
-        }
-        #big-tap:active { transform: scale(0.95); }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
 
     </style>
 </head>
 <body>
 
     <div id="hud">
-        <span id="level-display">Level 1 • Novice</span>
-        <span id="money-display">$0</span>
-        <div id="xp-bar-container"><div id="xp-bar-fill"></div></div>
+        <div id="level-display">Level 1 • Novice</div>
+        <div id="money-display">$0</div>
+        <div id="xp-container"><div id="xp-fill"></div></div>
     </div>
 
     <div id="viewport">
-        <!-- Content injected by JS -->
+        <!-- Dynamic Content -->
     </div>
 
     <div id="nav-bar">
-        <div class="nav-item active" onclick="setView('tap')"><span class="nav-icon">🖱️</span>Tap</div>
-        <div class="nav-item" onclick="setView('assets')"><span class="nav-icon">🏢</span>Assets</div>
-        <div class="nav-item" onclick="setView('lab')"><span class="nav-icon">🔬</span>Lab</div>
-        <div class="nav-item" onclick="setView('market')"><span class="nav-icon">📈</span>Market</div>
+        <div class="nav-item active" onclick="changeView('tap', this)"><span class="nav-icon">🖱️</span>Tap</div>
+        <div class="nav-item" onclick="changeView('assets', this)"><span class="nav-icon">🏢</span>Assets</div>
+        <div class="nav-item" onclick="changeView('lab', this)"><span class="nav-icon">🔬</span>Lab</div>
+        <div class="nav-item" onclick="changeView('market', this)"><span class="nav-icon">📈</span>Market</div>
     </div>
 
     <script>
-        // --- GAME ENGINE ---
-        const state = {
+        // --- GAME DATA ---
+        let state = {
             money: 0,
             xp: 0,
             level: 1,
             nextLevelXp: 100,
-            lastSave: Date.now(),
             clickPower: 1,
-            
             assets: [
-                { id: 0, name: "Lemonade Stand", cost: 15, income: 1, count: 0, manager: false },
-                { id: 1, name: "Cyber Cafe", cost: 150, income: 12, count: 0, manager: false },
-                { id: 2, name: "Cloud Farm", cost: 2000, income: 95, count: 0, manager: false },
-                { id: 3, name: "Quantum Hub", cost: 25000, income: 650, count: 0, manager: false }
+                { id: 0, name: "Lemonade Stand", cost: 15, income: 1, count: 0 },
+                { id: 1, name: "Cyber Cafe", cost: 150, income: 12, count: 0 },
+                { id: 2, name: "Cloud Farm", cost: 2000, income: 95, count: 0 },
+                { id: 3, name: "Quantum Hub", cost: 25000, income: 650, count: 0 }
             ],
-            
             research: [
-                { id: 0, name: "AI Logic", cost: 500, effect: "Double Tap Power", type: "click", mult: 2, unlocked: false, reqLevel: 2 },
-                { id: 1, name: "Auto-Manager", cost: 5000, effect: "Automate Assets", type: "auto", mult: 1, unlocked: false, reqLevel: 5 },
-                { id: 2, name: "Neural Link", cost: 50000, effect: "3x All Income", type: "income", mult: 3, unlocked: false, reqLevel: 10 }
+                { id: 0, name: "AI Optimization", cost: 500, effect: "x2 Tap Power", type: "click", mult: 2, bought: false, req: 2 },
+                { id: 1, name: "Auto-Scaling", cost: 5000, effect: "x2 Asset Income", type: "income", mult: 2, bought: false, req: 5 }
             ],
-
             market: [
-                { id: 0, name: "BIT-COIN", price: 100, trend: 0, owned: 0 },
-                { id: 1, name: "NEO-STOCK", price: 500, trend: 0, owned: 0 }
+                { id: 0, name: "BIT-CORE", price: 50, trend: 0, owned: 0 },
+                { id: 1, name: "NEO-TECH", price: 500, trend: 0, owned: 0 }
             ]
         };
 
         let currentView = 'tap';
 
-        // --- INITIALIZATION ---
+        // --- CORE ENGINE ---
+
         function init() {
-            const saved = localStorage.getItem('mogul_pro_save');
-            if (saved) {
-                const loaded = JSON.parse(saved);
-                Object.assign(state, loaded);
-                calculateOfflineEarnings();
-            }
-            
-            setInterval(gameLoop, 1000);
-            setInterval(marketLoop, 5000);
-            setInterval(saveGame, 15000);
-            
-            render();
-        }
-
-        function calculateOfflineEarnings() {
-            const now = Date.now();
-            const diff = Math.floor((now - state.lastSave) / 1000);
-            if (diff > 60) {
-                let income = 0;
-                state.assets.forEach(a => income += (a.count * a.income));
-                const earned = income * diff;
-                state.money += earned;
-                alert(`Welcome back! While you were gone, your empire earned $${earned.toLocaleString()}`);
+            try {
+                const saved = localStorage.getItem('mogul_v2_save');
+                if (saved) {
+                    const loaded = JSON.parse(saved);
+                    // Merge saved state with default state to prevent errors on updates
+                    Object.assign(state, loaded);
+                }
+                
+                render();
+                
+                // Start Loops
+                setInterval(gameLoop, 1000);    // Passive income
+                setInterval(marketLoop, 4000);  // Market movement
+                setInterval(saveGame, 10000);   // Auto-save
+                
+                console.log("Game Initialized Successfully");
+            } catch (e) {
+                console.error("Initialization Error:", e);
             }
         }
 
-        // --- CORE LOOPS ---
         function gameLoop() {
             let income = 0;
             state.assets.forEach(a => {
-                // If research "Auto-Manager" is unlocked, income is always active
                 income += (a.count * a.income);
             });
 
-            // Apply Research Multipliers
-            state.research.filter(r => r.unlocked && r.type === 'income').forEach(r => {
-                income *= r.mult;
+            // Apply research multipliers
+            state.research.forEach(r => {
+                if (r.bought && r.type === 'income') income *= r.mult;
             });
 
             state.money += income;
@@ -237,18 +214,114 @@
 
         function marketLoop() {
             state.market.forEach(s => {
-                const change = (Math.random() * 0.4) - 0.18; 
-                s.price = Math.max(10, s.price * (1 + change));
+                const change = (Math.random() * 0.3) - 0.15; // -15% to +15%
+                s.price = Math.max(5, s.price * (1 + change));
                 s.trend = change;
             });
             if(currentView === 'market') render();
         }
 
-        // --- ACTIONS ---
-        function tap() {
-            state.money += state.clickPower;
-            addXp(5);
+        // --- UI FUNCTIONS ---
+
+        function updateHUD() {
+            document.getElementById('money-display').innerText = `$${Math.floor(state.money).toLocaleString()}`;
+            document.getElementById('level-display').innerText = `Level ${state.level} • ${getRank()}`;
+            const xpPerc = (state.xp / state.nextLevelXp) * 100;
+            document.getElementById('xp-fill').style.width = `${xpPerc}%`;
+        }
+
+        function getRank() {
+            if (state.level < 5) return "Novice";
+            if (state.level < 15) return "CEO";
+            return "Tycoon";
+        }
+
+        function changeView(view, el) {
+            currentView = view;
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
             render();
+        }
+
+        function render() {
+            const view = document.getElementById('viewport');
+            view.innerHTML = '';
+
+            if (currentView === 'tap') {
+                view.innerHTML = `
+                    <div id="tap-view">
+                        <div id="big-button" onclick="handleTap(event)">TAP<br>PROFIT</div>
+                        <p style="color:var(--text-dim); margin-top:30px;">Power: $${state.clickPower}</p>
+                    </div>
+                `;
+            } 
+            else if (currentView === 'assets') {
+                state.assets.forEach(a => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-info">
+                            <h3>${a.name} [${a.count}]</h3>
+                            <p>Cost: $${Math.floor(a.cost).toLocaleString()} | +$${a.income}/s</p>
+                        </div>
+                        <button class="buy-btn" onclick="buyAsset(${a.id})" ${state.money < a.cost ? 'disabled' : ''}>BUY</button>
+                    `;
+                    view.appendChild(card);
+                });
+            }
+            else if (currentView === 'lab') {
+                state.research.forEach(r => {
+                    const isLocked = state.level < r.req;
+                    const card = document.createElement('div');
+                    card.className = `card ${isLocked ? 'research-locked' : ''}`;
+                    card.innerHTML = `
+                        <div class="card-info">
+                            <h3>${r.name} ${r.bought ? '✅' : ''}</h3>
+                            <p>${r.effect}</p>
+                            <p>${isLocked ? `Level ${r.req} Required` : `Cost: $${r.cost.toLocaleString()}`}</p>
+                        </div>
+                        ${!r.bought && !isLocked ? `<button class="buy-btn" onclick="buyResearch(${r.id})" ${state.money < r.cost ? 'disabled' : ''}>RESEARCH</button>` : ''}
+                    `;
+                    view.appendChild(card);
+                });
+            }
+            else if (currentView === 'market') {
+                state.market.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-info">
+                            <h3>${s.name}</h3>
+                            <p>Price: $${s.price.toFixed(2)} | Owned: ${s.owned}</p>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="buy-btn" onclick="trade(${s.id}, 1)" ${state.money < s.price ? 'disabled' : ''}>BUY</button>
+                            <button class="buy-btn" style="background:var(--danger)" onclick="trade(${s.id}, -1)" ${s.owned <= 0 ? 'disabled' : ''}>SELL</button>
+                        </div>
+                    `;
+                    view.appendChild(card);
+                });
+            }
+            updateHUD();
+        }
+
+        // --- ACTIONS ---
+
+        function handleTap(e) {
+            state.money += state.clickPower;
+            addXp(2);
+            createFloatText(e.clientX, e.clientY, `+$${state.clickPower}`);
+            updateHUD();
+        }
+
+        function createFloatText(x, y, txt) {
+            const el = document.createElement('div');
+            el.className = 'float-text';
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            el.innerText = txt;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
         }
 
         function buyAsset(id) {
@@ -257,20 +330,32 @@
                 state.money -= a.cost;
                 a.count++;
                 a.cost *= 1.3;
-                addXp(20);
+                addXp(15);
                 render();
             }
         }
 
         function buyResearch(id) {
             const r = state.research[id];
-            if (state.money >= r.cost && !r.unlocked) {
+            if (state.money >= r.cost && !r.bought) {
                 state.money -= r.cost;
-                r.unlocked = true;
+                r.bought = true;
                 if (r.type === 'click') state.clickPower *= r.mult;
-                addXp(500);
+                addXp(100);
                 render();
             }
+        }
+
+        function trade(id, dir) {
+            const s = state.market[id];
+            if (dir === 1 && state.money >= s.price) {
+                state.money -= s.price;
+                s.owned++;
+            } else if (dir === -1 && s.owned > 0) {
+                state.money += s.price;
+                s.owned--;
+            }
+            render();
         }
 
         function addXp(amt) {
@@ -278,41 +363,17 @@
             if (state.xp >= state.nextLevelXp) {
                 state.level++;
                 state.xp = 0;
-                state.nextLevelXp *= 1.5;
-                // Level up rewards
-                state.clickPower += (state.level * 2);
+                state.nextLevelXp = Math.floor(state.nextLevelXp * 1.6);
             }
         }
 
-        // --- UI SYSTEM ---
-        function setView(view) {
-            currentView = view;
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            render();
+        function saveGame() {
+            localStorage.setItem('mogul_v2_save', JSON.stringify(state));
         }
 
-        function updateHUD() {
-            document.getElementById('money-display').innerText = `$${Math.floor(state.money).toLocaleString()}`;
-            document.getElementById('level-display').innerText = `Level ${state.level} • ${getRank()}`;
-            const xpPercent = (state.xp / state.nextLevelXp) * 100;
-            document.getElementById('xp-bar-fill').style.width = `${xpPercent}%`;
-        }
+        // Start the game
+        window.addEventListener('DOMContentLoaded', init);
 
-        function getRank() {
-            if (state.level < 5) return "Novice";
-            if (state.level < 15) return "Manager";
-            if (state.level < 30) return "CEO";
-            return "Overlord";
-        }
-
-        function render() {
-            updateHUD();
-            const viewport = document.getElementById('viewport');
-            viewport.innerHTML = '';
-
-            if (currentView === 'tap') {
-                viewport.innerHTML = `
-                    <div id="clicker-container">
-                        <div id="big-tap" onclick="tap()">TAP<br>PROFIT</div>
-                        <p style="color:var(--text-dim); margin-
+    </script>
+</body>
+</html>
