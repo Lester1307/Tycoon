@@ -3,401 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mogul Tycoon: Pro</title>
+    <title>MOGUL COMMAND CENTER</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --bg: #0a0a12;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --bg: #05050a;
+            --panel: #0f172a;
             --accent: #00f2ff;
             --secondary: #7000ff;
             --gold: #ffae00;
             --danger: #ff4b2b;
-            --text: #ffffff;
+            --success: #00ff88;
+            --text: #e2e8f0;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
 
         body {
             margin: 0;
             background-color: var(--bg);
-            background-image: radial-gradient(circle at top right, #1a1a3a, #0a0a12);
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
             overflow: hidden;
         }
 
-        /* Header & Stats */
-        #header {
-            padding: 25px 20px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        #money-display { 
-            font-size: 3rem; 
-            color: var(--gold); 
-            font-weight: 800; 
-            text-shadow: 0 0 20px rgba(253, 219, 58, 0.3);
-            margin: 0;
-        }
-
-        #pps-display { font-size: 1rem; opacity: 0.6; margin-top: 5px; }
-
-        /* News Ticker */
-        #news-ticker {
-            background: rgba(0, 242, 255, 0.1);
-            color: var(--accent);
-            padding: 5px;
-            font-size: 0.8rem;
-            text-align: center;
-            font-weight: bold;
-            height: 25px;
-            overflow: hidden;
-        }
-
-        /* Main Interaction Area */
-        #click-area {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        #main-button {
-            width: 180px;
-            height: 180px;
-            background: linear-gradient(135deg, var(--accent), var(--secondary));
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 900;
-            font-size: 1.2rem;
-            box-shadow: 0 0 40px rgba(0, 242, 255, 0.4);
-            cursor: pointer;
-            transition: transform 0.1s ease;
-            text-align: center;
-            user-select: none;
-        }
-
-        #main-button:active { transform: scale(0.92); }
-
-        /* Tabs Navigation */
-        .tabs { display: flex; background: rgba(0,0,0,0.2); }
-        .tab {
-            flex: 1; padding: 15px; text-align: center;
-            border: none; background: none; color: white;
-            font-weight: bold; opacity: 0.4; cursor: pointer;
-            transition: 0.3s;
-        }
-        .tab.active { opacity: 1; border-bottom: 3px solid var(--accent); background: rgba(255,255,255,0.05); }
-
-        /* Content Area */
-        .content-area {
-            flex: 2;
-            overflow-y: auto;
-            padding: 15px;
-            padding-bottom: 30px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 12px;
+        /* --- TOP HUD --- */
+        #hud {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            animation: fadeIn 0.5s ease forwards;
+            padding: 15px 25px;
+            background: #000;
+            border-bottom: 2px solid var(--accent);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .stat-box { display: flex; flex-direction: column; }
+        .stat-label { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--gold); }
 
-        .card-info h3 { margin: 0; font-size: 1.1rem; color: var(--accent); }
-        .card-info p { margin: 5px 0 0; font-size: 0.85rem; opacity: 0.7; }
-
-        .buy-btn {
-            background: linear-gradient(to right, var(--secondary), var(--accent));
-            border: none; color: white;
-            padding: 10px 18px; border-radius: 8px;
-            font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        /* --- MAIN DASHBOARD LAYOUT --- */
+        #dashboard {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            grid-template-rows: 1fr 150px;
+            gap: 10px;
+            padding: 10px;
+            flex: 1;
+            height: calc(100vh - 100px);
         }
 
-        .buy-btn:disabled { background: #333; box-shadow: none; opacity: 0.5; }
-
-        /* Prestige Section */
-        .prestige-card {
-            background: linear-gradient(135deg, #434343, #000000);
-            border: 1px solid var(--gold);
-            text-align: center;
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            #dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr 120px;
+                overflow-y: auto;
+            }
         }
 
-        /* Floating Text */
-        .floating-text {
-            position: absolute;
-            color: var(--gold);
-            font-weight: 800;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 100;
+        .panel {
+            background: var(--panel);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-120px); opacity: 0; }
+        .panel-header {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: var(--accent);
+            text-transform: uppercase;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--card-bg); border-radius: 10px; }
+        /* --- ASSETS PANEL --- */
+        .scroll-area { flex: 1; overflow-y: auto; padding: 10px; }
+
+        .asset-card {
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--secondary);
+        }
+
+        /* --- MARKET PANEL --- */
+        .stock-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stock-price { font-weight: bold; }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        .market-controls { display: flex; gap: 5px; }
+        .m-btn {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .buy-m { background: var(--success); color: #000; }
+        .sell-m { background: var(--danger); color: #fff; }
+
+        /* --- TERMINAL PANEL --- */
+        #terminal {
+            grid-column: span 2;
+            background: #000;
+            font-size: 0.75rem;
+            color: var(--success);
+            padding: 10px;
+            overflow-y: auto;
+        }
+        @media (max-width: 768px) { #terminal { grid-column: span 1; } }
+
+        .log-entry { margin-bottom: 4px; border-left: 2px solid var(--success); padding-left: 8px; }
+        .log-warn { color: var(--danger); border-color: var(--danger); }
+
+        /* --- BUTTONS --- */
+        .action-btn {
+            background: var(--accent);
+            border: none;
+            color: #000;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .action-btn:disabled { background: #444; cursor: not-allowed; }
+
+        /* --- ANIMATIONS --- */
+        .pulse { animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px var(--accent); }
+            50% { box-shadow: 0 0 20px var(--accent); }
+            100% { box-shadow: 0 0 5px var(--accent); }
+        }
     </style>
 </head>
 <body>
 
-    <div id="header">
-        <div id="money-display">$0</div>
-        <div id="pps-display">Income: $0/s</div>
+    <div id="hud">
+        <div class="stat-box">
+            <span class="stat-label">Liquid Capital</span>
+            <span class="stat-value" id="money-display">$0</span>
+        </div>
+        <div class="stat-box" style="text-align: right;">
+            <span class="stat-label">Net Income/s</span>
+            <span class="stat-value" id="pps-display" style="color: var(--accent);">$0</span>
+        </div>
     </div>
 
-    <div id="news-ticker">Market is stable. Welcome, CEO.</div>
+    <div id="dashboard">
+        <!-- ASSETS COLUMN -->
+        <div class="panel">
+            <div class            ="panel-header">Enterprise Assets</div>
+            <div class="scroll-area" id="asset-list">
+                <!-- Assets injected here -->
+            </div>
+        </div>
 
-    <div id="click-area">
-        <div id="main-button">TAP TO<br>PROFIT</div>
-    </div>
+        <!-- MARKET COLUMN -->
+        <div class="panel">
+            <div class="panel-header">Global Market (Live)</div>
+            <div class="scroll-area" id="market-list">
+                <!-- Stocks injected here -->
+            </div>
+        </div>
 
-    <div class="tabs">
-        <button class="tab active" onclick="switchTab('biz')">Empire</button>
-        <button class="tab" onclick="switchTab('upg')">Upgrades</button>
-        <button class="tab" onclick="switchTab('prestige')">Ascend</button>
-    </div>
-
-    <div id="biz-tab" class="content-area"></div>
-    <div id="upg-tab" class="content-area" style="display:none;"></div>
-    <div id="prestige-tab" class="content-area" style="display:none;">
-        <div class="prestige-card">
-            <h3>Ascension Available</h3>
-            <p>Reset your empire to gain a permanent <span style="color:var(--gold)">Multipler</span>.</p>
-            <p id="prestige-gain">Current Bonus: x1.0</p>
-            <button class="buy-btn" onclick="prestige()" style="padding: 15px 30px; margin-top:10px;">ASCEND NOW</button>
+        <!-- TERMINAL ROW -->
+        <div id="terminal" class="panel">
+            <div class="panel-header" style="background:none; border:none; padding:0;">System Log</div>
+            <div id="log-content">
+                <div class="log-entry">Initializing Mogul OS v4.0...</div>
+                <div class="log-entry">System Ready. Welcome, Commander.</div>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- GAME STATE ---
+        // --- GAME DATA ---
         let game = {
-            money: 0,
-            totalEarned: 0,
-            clickPower: 1,
-            prestigeMultiplier: 1,
-            eventMultiplier: 1,
-            businesses: [
-                { id: 0, name: "Lemonade Stand", cost: 15, income: 1, count: 0 },
-                { id: 1, name: "Coffee Shop", cost: 100, income: 8, count: 0 },
-                { id: 2, name: "Tech Startup", cost: 1200, income: 45, count: 0 },
-                { id: 3, name: "Crypto Mine", cost: 15000, income: 250, count: 0 },
-                { id: 4, name: "Space Station", cost: 200000, income: 1800, count: 0 }
+            money: 1000,
+            totalEarned: 1000,
+            assets: [
+                { id: 0, name: "Data Center", cost: 500, income: 10, count: 0 },
+                { id: 1, name: "Bio-Lab", cost: 5000, income: 85, count: 0 },
+                { id: 2, name: "Satellite Net", cost: 50000, income: 600, count: 0 },
+                { id: 3, name: "Moon Colony", cost: 1000000, income: 12000, count: 0 }
             ],
-            upgrades: [
-                { id: 0, name: "Gold Spoons", cost: 100, type: "click", mult: 2, bought: false },
-                { id: 1, name: "AI Management", cost: 2500, type: "click", mult: 5, bought: false },
-                { id: 2, name: "Hyper-Scaling", cost: 10000, type: "income", mult: 1.5, bought: false }
+            stocks: [
+                { id: 0, name: "CYBER-X", price: 50, trend: 0, owned: 0 },
+                { id: 1, name: "NEO-VOID", price: 200, trend: 0, owned: 0 },
+                { id: 2, name: "AERO-TECH", price: 1000, trend: 0, owned: 0 }
             ]
         };
 
-        // --- CORE LOGIC ---
+        // --- ENGINE ---
 
         function init() {
             const saved = localStorage.getItem('mogulProData');
             if (saved) game = JSON.parse(saved);
-            updateUI();
-            setInterval(gameLoop, 100); // Higher frequency for smooth UI
-            setInterval(randomEvent, 30000); // Event every 30s
-            setInterval(saveGame, 15000);
-        }
-
-        function gameLoop() {
-            let baseIncome = 0;
-            game.businesses.forEach(b => {
-                baseIncome += (b.count * b.income);
-            });
-
-            // Apply all multipliers
-            let multiplier = game.prestigeMultiplier * game.eventMultiplier;
-            game.upgrades.filter(u => u.bought && u.type === 'income').forEach(u => {
-                multiplier *= u.mult;
-            });
-
-            const actualIncomePerSecond = baseIncome * multiplier;
-            game.money += (actualIncomePerSecond / 10); // Divide by 10 because loop runs 10x a sec
-            game.totalEarned += (actualIncomePerSecond / 10);
             
-            updateUI(actualIncomePerSecond);
+            updateUI();
+            setInterval(mainLoop, 1000); // Passive income
+            setInterval(marketLoop, 3000); // Stock fluctuation
+            setInterval(saveGame, 10000);
         }
 
-        function updateUI(pps = 0) {
+        function mainLoop() {
+            let income = 0;
+            game.assets.forEach(a => {
+                income += (a.count * a.income);
+            });
+            game.money += income;
+            updateUI(income);
+        }
+
+        function marketLoop() {
+            game.stocks.forEach(s => {
+                const change = (Math.random() * 0.4) - 0.18; // -18% to +22%
+                const oldPrice = s.price;
+                s.price = Math.max(5, s.price * (1 + change));
+                s.trend = s.price - oldPrice;
+            });
+            renderMarket();
+            log(`Market updated: ${new Date().toLocaleTimeString()}`, false);
+        }
+
+        // --- UI RENDERING ---
+
+        function updateUI(income = 0) {
             document.getElementById('money-display').innerText = `$${Math.floor(game.money).toLocaleString()}`;
-            document.getElementById('pps-display').innerText = `Income: $${pps.toFixed(1)}/s`;
-            document.getElementById('prestige-gain').innerText = `Current Multiplier: x${game.prestigeMultiplier.toFixed(1)}`;
-
-            renderBusinesses();
-            renderUpgrades();
+            document.getElementById('pps-display').innerText = `$${income.toLocaleString()}/s`;
+            renderAssets();
         }
 
-        function renderBusinesses() {
-            const container = document.getElementById('biz-tab');
-            container.innerHTML = '';
-            game.businesses.forEach(b => {
+        function renderAssets() {
+            const list = document.getElementById('asset-list');
+            list.innerHTML = '';
+            game.assets.forEach(a => {
                 const card = document.createElement('div');
-                card.className = 'card';
+                card.className = 'asset-card';
                 card.innerHTML = `
                     <div class="card-info">
-                        <h3>${b.name} <span style="opacity:0.5; font-size:0.8rem;">[${b.count}]</span></h3>
-                        <p>Cost: $${Math.floor(b.cost).toLocaleString()} | +$${(b.income * game.prestigeMultiplier * game.eventMultiplier).toFixed(1)}/s</p>
+                        <h3>${a.name} <small>[${a.count}]</small></h3>
+                        <p>Cost: $${Math.floor(a.cost).toLocaleString()} | +$${a.income}/s</p>
                     </div>
-                    <button class="buy-btn" onclick="buyBiz(${b.id})" ${game.money < b.cost ? 'disabled' : ''}>BUY</button>
+                    <button class="action-btn" onclick="buyAsset(${a.id})" ${game.money < a.cost ? 'disabled' : ''}>EXPAND</button>
                 `;
-                container.appendChild(card);
+                list.appendChild(card);
             });
         }
 
-        function renderUpgrades() {
-            const container = document.getElementById('upg-tab');
-            container.innerHTML = '';
-            game.upgrades.forEach(u => {
-                if (u.bought) return;
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
+        function renderMarket() {
+            const list = document.getElementById('market-list');
+            list.innerHTML = '';
+            game.stocks.forEach(s => {
+                const trendClass = s.trend >= 0 ? 'trend-up' : 'trend-down';
+                const trendSign = s.trend >= 0 ? '▲' : '▼';
+                
+                const item = document.createElement('div');
+                item.className = 'stock-item';
+                item.innerHTML = `
                     <div class="card-info">
-                        <h3>${u.name}</h3>
-                        <p>Cost: $${u.cost.toLocaleString()} | ${u.type === 'click' ? 'x'+u.mult+' Click' : 'x'+u.mult+' Income'}</p>
+                        <h3>${s.name}</h3>
+                        <p>Owned: ${s.owned}</p>
                     </div>
-                    <button class="buy-btn" onclick="buyUpgrade(${u.id})" ${game.money < u.cost ? 'disabled' : ''}>UPGRADE</button>
+                    <div class="stat-box" style="align-items:flex-end;">
+                        <span class="stock-price ${trendClass}">$${s.price.toFixed(2)} ${trendSign}</span>
+                        <div class="market-controls">
+                            <button class="m-btn buy-m" onclick="trade(${s.id}, 1)">BUY</button>
+                            <button class="m-btn sell-m" onclick="trade(${s.id}, -1)">SELL</button>
+                        </div>
+                    </div>
                 `;
-                container.appendChild(card);
+                list.appendChild(item);
             });
         }
 
         // --- ACTIONS ---
 
-        function buyBiz(id) {
-            let b = game.businesses[id];
-            if (game.money >= b.cost) {
-                game.money -= b.cost;
-                b.count++;
-                b.cost *= 1.25;
+        function buyAsset(id) {
+            let a = game.assets[id];
+            if (game.money >= a.cost) {
+                game.money -= a.cost;
+                a.count++;
+                a.cost *= 1.3;
+                log(`Acquired ${a.name}. Operational capacity increased.`, false);
                 updateUI();
             }
         }
 
-        function buyUpgrade(id) {
-            let u = game.upgrades[id];
-            if (game.money >= u.cost) {
-                game.money -= u.cost;
-                u.bought = true;
-                if (u.type === 'click') game.clickPower *= u.mult;
-                updateUI();
+        function trade(id, direction) {
+            let s = game.stocks[id];
+            if (direction === 1) { // Buy
+                if (game.money >= s.price) {
+                    game.money -= s.price;
+                    s.owned++;
+                    log(`Purchased 1 unit of ${s.name}`, false);
+                } else {
+                    log(`Insufficient funds for ${s.name}`, true);
+                }
+            } else { // Sell
+                if (s.owned > 0) {
+                    game.money += s.price;
+                    s.owned--;
+                    log(`Liquidated ${s.name} position. Profit secured.`, false);
+                } else {
+                    log(`No ${s.name} holdings to liquidate.`, true);
+                }
             }
-        }
-
-        function prestige() {
-            if (game.money < 1000000) {
-                alert("You need at least $1,000,000 to ascend!");
-                return;
-            }
-            
-            const bonus = 1 + (game.totalEarned / 10000000); // Gain multiplier based on lifetime earnings
-            game.prestigeMultiplier += bonus;
-            
-            // Reset everything except multiplier
-            game.money = 0;
-            game.totalEarned = 0;
-            game.clickPower = 1;
-            game.businesses.forEach(b => {
-                b.count = 0;
-                b.cost = b.id === 0 ? 15 : b.id === 1 ? 100 : b.id === 2 ? 1200 : b.id === 3 ? 15000 : 200000;
-            });
-            game.upgrades.forEach(u => u.bought = false);
-
-            switchTab('biz');
+            renderMarket();
             updateUI();
-            alert("You have ascended! Your power has grown.");
         }
 
-        // --- SYSTEMS ---
-
-        function randomEvent() {
-            const events = [
-                { msg: "🚀 BULL MARKET! Income doubled!", mult: 2, color: "#00f2ff" },
-                { msg: "📉 MARKET CRASH! Income halved!", mult: 0.5, color: "#ff4b2b" },
-                { msg: "⚖️ Market is stabilizing...", mult: 1, color: "#fff" }
-            ];
-            const evt = events[Math.floor(Math.random() * events.length)];
-            
-            game.eventMultiplier = evt.mult;
-            const ticker = document.getElementById('news-ticker');
-            ticker.innerText = evt.msg;
-            ticker.style.color = evt.color;
-            
-            // Reset event after 10 seconds
-            setTimeout(() => {
-                game.eventMultiplier = 1;
-                ticker.innerText = "Market is stable.";
-                ticker.style.color = "var(--accent)";
-            }, 10000);
-        }
-
-        // --- UI & HELPERS ---
-
-        document.getElementById('main-button').addEventListener('pointerdown', (e) => {
-            const power = game.clickPower * game.prestigeMultiplier * game.eventMultiplier;
-            game.money += power;
-            createFloatingText(e.clientX, e.clientY, `+$${power.toFixed(1)}`);
-            updateUI();
-        });
-
-        function createFloatingText(x, y, text) {
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.innerText = text;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 800);
-        }
-
-        function switchTab(tab) {
-            document.getElementById('biz-tab').style.display = tab === 'biz' ? 'block' : 'none';
-            document.getElementById('upg-tab').style.display = tab === 'upg' ? 'block' : 'none';
-            document.getElementById('prestige-tab').style.display = tab === 'prestige' ? 'block' : 'none';
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+        function log(msg, isWarn) {
+            const content = document.getElementById('log-content');
+            const div = document.createElement('div');
+            div.className = isWarn ? 'log-entry log-warn' : 'log-entry';
+            div.innerText = `> ${msg}`;
+            content.prepend(div);
+            if (content.childNodes.length > 20) content.lastChild.remove();
         }
 
         function saveGame() {
             localStorage.setItem('mogulProData', JSON.stringify(game));
         }
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-
+        // Start
         init();
+        renderMarket(); // Initial market render
     </script>
 </body>
 </html>
