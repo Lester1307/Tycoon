@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MOGUL COMMAND CENTER</title>
+    <title>MOGUL: EMPIRE COMMAND</title>
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --bg: #05050a;
-            --panel: #0f172a;
+            --bg: #05070a;
+            --panel: #111827;
             --accent: #00f2ff;
             --secondary: #7000ff;
-            --gold: #ffae00;
-            --danger: #ff4b2b;
-            --success: #00ff88;
-            --text: #e2e8f0;
+            --gold: #fbbf24;
+            --danger: #ef4444;
+            --success: #10b981;
+            --text: #f3f4f6;
+            --text-dim: #9ca3af;
         }
 
-        * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
 
         body {
             margin: 0;
@@ -27,329 +28,291 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            user-select: none;
         }
 
         /* --- TOP HUD --- */
         #hud {
+            padding: 20px;
+            background: linear-gradient(to bottom, #111827, #05070a);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        #money-display { font-size: 2.5rem; font-weight: 800; color: var(--gold); display: block; }
+        #level-display { font-size: 0.8rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        #xp-bar-container {
+            width: 100%; height: 4px; background: #374151; margin-top: 10px; border-radius: 2px; overflow: hidden;
+        }
+        #xp-bar-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
+
+        /* --- MAIN VIEWPORT --- */
+        #viewport {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 100px; /* Space for bottom nav */
+        }
+
+        /* --- CARDS & UI --- */
+        .card {
+            background: var(--panel);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 25px;
-            background: #000;
-            border-bottom: 2px solid var(--accent);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            animation: slideUp 0.4s ease-out;
         }
 
-        .stat-box { display: flex; flex-direction: column; }
-        .stat-label { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-        .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--gold); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MAIN DASHBOARD LAYOUT --- */
-        #dashboard {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            grid-template-rows: 1fr 150px;
-            gap: 10px;
-            padding: 10px;
-            flex: 1;
-            height: calc(100vh - 100px);
+        .card-info h3 { margin: 0; font-size: 1.1rem; color: var(--text); }
+        .card-info p { margin: 4px 0 0; font-size: 0.85rem; color: var(--text-dim); }
+
+        .buy-btn {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border: none; color: white;
+            padding: 10px 16px; border-radius: 10px;
+            font-weight: bold; font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .buy-btn:disabled { background: #374151; opacity: 0.5; }
+
+        /* --- BOTTOM NAVIGATION --- */
+        #nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            #dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr 1fr 120px;
-                overflow-y: auto;
-            }
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
+        .nav-item {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-        }
-
-        .panel-header {
-            padding: 10px;
-            background: rgba(255,255,255,0.05);
-            font-size: 0.8rem;
-            font-weight: bold;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            color: var(--accent);
+            align-items: center;
+            color: var(--text-dim);
+            font-size: 0.65rem;
             text-transform: uppercase;
-        }
-
-        /* --- ASSETS PANEL --- */
-        .scroll-area { flex: 1; overflow-y: auto; padding: 10px; }
-
-        .asset-card {
-            background: rgba(255,255,255,0.03);
-            margin-bottom: 10px;
-            padding: 12px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 3px solid var(--secondary);
-        }
-
-        /* --- MARKET PANEL --- */
-        .stock-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .stock-price { font-weight: bold; }
-        .trend-up { color: var(--success); }
-        .trend-down { color: var(--danger); }
-
-        .market-controls { display: flex; gap: 5px; }
-        .m-btn {
-            padding: 4px 8px;
-            font-size: 0.7rem;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .buy-m { background: var(--success); color: #000; }
-        .sell-m { background: var(--danger); color: #fff; }
-
-        /* --- TERMINAL PANEL --- */
-        #terminal {
-            grid-column: span 2;
-            background: #000;
-            font-size: 0.75rem;
-            color: var(--success);
-            padding: 10px;
-            overflow-y: auto;
-        }
-        @media (max-width: 768px) { #terminal { grid-column: span 1; } }
-
-        .log-entry { margin-bottom: 4px; border-left: 2px solid var(--success); padding-left: 8px; }
-        .log-warn { color: var(--danger); border-color: var(--danger); }
-
-        /* --- BUTTONS --- */
-        .action-btn {
-            background: var(--accent);
-            border: none;
-            color: #000;
-            padding: 8px 12px;
-            border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
         }
-        .action-btn:disabled { background: #444; cursor: not-allowed; }
 
-        /* --- ANIMATIONS --- */
-        .pulse { animation: pulse-glow 2s infinite; }
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 5px var(--accent); }
-            50% { box-shadow: 0 0 20px var(--accent); }
-            100% { box-shadow: 0 0 5px var(--accent); }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 4px; }
+
+        /* --- SPECIAL SECTIONS --- */
+        .market-ticker {
+            background: #000; color: var(--success);
+            padding: 5px; font-size: 0.7rem; text-align: center;
+            border-bottom: 1px solid var(--accent);
         }
+
+        .research-locked { opacity: 0.5; filter: grayscale(1); }
+
+        /* --- CLICKER ELEMENT --- */
+        #clicker-container {
+            text-align: center;
+            padding: 40px 0;
+        }
+        #big-tap {
+            width: 140px; height: 140px;
+            background: radial-gradient(circle, var(--accent), var(--secondary));
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+            cursor: pointer;
+        }
+        #big-tap:active { transform: scale(0.95); }
+
     </style>
 </head>
 <body>
 
     <div id="hud">
-        <div class="stat-box">
-            <span class="stat-label">Liquid Capital</span>
-            <span class="stat-value" id="money-display">$0</span>
-        </div>
-        <div class="stat-box" style="text-align: right;">
-            <span class="stat-label">Net Income/s</span>
-            <span class="stat-value" id="pps-display" style="color: var(--accent);">$0</span>
-        </div>
+        <span id="level-display">Level 1 • Novice</span>
+        <span id="money-display">$0</span>
+        <div id="xp-bar-container"><div id="xp-bar-fill"></div></div>
     </div>
 
-    <div id="dashboard">
-        <!-- ASSETS COLUMN -->
-        <div class="panel">
-            <div class            ="panel-header">Enterprise Assets</div>
-            <div class="scroll-area" id="asset-list">
-                <!-- Assets injected here -->
-            </div>
-        </div>
+    <div id="viewport">
+        <!-- Content injected by JS -->
+    </div>
 
-        <!-- MARKET COLUMN -->
-        <div class="panel">
-            <div class="panel-header">Global Market (Live)</div>
-            <div class="scroll-area" id="market-list">
-                <!-- Stocks injected here -->
-            </div>
-        </div>
-
-        <!-- TERMINAL ROW -->
-        <div id="terminal" class="panel">
-            <div class="panel-header" style="background:none; border:none; padding:0;">System Log</div>
-            <div id="log-content">
-                <div class="log-entry">Initializing Mogul OS v4.0...</div>
-                <div class="log-entry">System Ready. Welcome, Commander.</div>
-            </div>
-        </div>
+    <div id="nav-bar">
+        <div class="nav-item active" onclick="setView('tap')"><span class="nav-icon">🖱️</span>Tap</div>
+        <div class="nav-item" onclick="setView('assets')"><span class="nav-icon">🏢</span>Assets</div>
+        <div class="nav-item" onclick="setView('lab')"><span class="nav-icon">🔬</span>Lab</div>
+        <div class="nav-item" onclick="setView('market')"><span class="nav-icon">📈</span>Market</div>
     </div>
 
     <script>
-        // --- GAME DATA ---
-        let game = {
-            money: 1000,
-            totalEarned: 1000,
+        // --- GAME ENGINE ---
+        const state = {
+            money: 0,
+            xp: 0,
+            level: 1,
+            nextLevelXp: 100,
+            lastSave: Date.now(),
+            clickPower: 1,
+            
             assets: [
-                { id: 0, name: "Data Center", cost: 500, income: 10, count: 0 },
-                { id: 1, name: "Bio-Lab", cost: 5000, income: 85, count: 0 },
-                { id: 2, name: "Satellite Net", cost: 50000, income: 600, count: 0 },
-                { id: 3, name: "Moon Colony", cost: 1000000, income: 12000, count: 0 }
+                { id: 0, name: "Lemonade Stand", cost: 15, income: 1, count: 0, manager: false },
+                { id: 1, name: "Cyber Cafe", cost: 150, income: 12, count: 0, manager: false },
+                { id: 2, name: "Cloud Farm", cost: 2000, income: 95, count: 0, manager: false },
+                { id: 3, name: "Quantum Hub", cost: 25000, income: 650, count: 0, manager: false }
             ],
-            stocks: [
-                { id: 0, name: "CYBER-X", price: 50, trend: 0, owned: 0 },
-                { id: 1, name: "NEO-VOID", price: 200, trend: 0, owned: 0 },
-                { id: 2, name: "AERO-TECH", price: 1000, trend: 0, owned: 0 }
+            
+            research: [
+                { id: 0, name: "AI Logic", cost: 500, effect: "Double Tap Power", type: "click", mult: 2, unlocked: false, reqLevel: 2 },
+                { id: 1, name: "Auto-Manager", cost: 5000, effect: "Automate Assets", type: "auto", mult: 1, unlocked: false, reqLevel: 5 },
+                { id: 2, name: "Neural Link", cost: 50000, effect: "3x All Income", type: "income", mult: 3, unlocked: false, reqLevel: 10 }
+            ],
+
+            market: [
+                { id: 0, name: "BIT-COIN", price: 100, trend: 0, owned: 0 },
+                { id: 1, name: "NEO-STOCK", price: 500, trend: 0, owned: 0 }
             ]
         };
 
-        // --- ENGINE ---
+        let currentView = 'tap';
 
+        // --- INITIALIZATION ---
         function init() {
-            const saved = localStorage.getItem('mogulProData');
-            if (saved) game = JSON.parse(saved);
+            const saved = localStorage.getItem('mogul_pro_save');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                Object.assign(state, loaded);
+                calculateOfflineEarnings();
+            }
             
-            updateUI();
-            setInterval(mainLoop, 1000); // Passive income
-            setInterval(marketLoop, 3000); // Stock fluctuation
-            setInterval(saveGame, 10000);
+            setInterval(gameLoop, 1000);
+            setInterval(marketLoop, 5000);
+            setInterval(saveGame, 15000);
+            
+            render();
         }
 
-        function mainLoop() {
+        function calculateOfflineEarnings() {
+            const now = Date.now();
+            const diff = Math.floor((now - state.lastSave) / 1000);
+            if (diff > 60) {
+                let income = 0;
+                state.assets.forEach(a => income += (a.count * a.income));
+                const earned = income * diff;
+                state.money += earned;
+                alert(`Welcome back! While you were gone, your empire earned $${earned.toLocaleString()}`);
+            }
+        }
+
+        // --- CORE LOOPS ---
+        function gameLoop() {
             let income = 0;
-            game.assets.forEach(a => {
+            state.assets.forEach(a => {
+                // If research "Auto-Manager" is unlocked, income is always active
                 income += (a.count * a.income);
             });
-            game.money += income;
-            updateUI(income);
+
+            // Apply Research Multipliers
+            state.research.filter(r => r.unlocked && r.type === 'income').forEach(r => {
+                income *= r.mult;
+            });
+
+            state.money += income;
+            updateHUD();
         }
 
         function marketLoop() {
-            game.stocks.forEach(s => {
-                const change = (Math.random() * 0.4) - 0.18; // -18% to +22%
-                const oldPrice = s.price;
-                s.price = Math.max(5, s.price * (1 + change));
-                s.trend = s.price - oldPrice;
+            state.market.forEach(s => {
+                const change = (Math.random() * 0.4) - 0.18; 
+                s.price = Math.max(10, s.price * (1 + change));
+                s.trend = change;
             });
-            renderMarket();
-            log(`Market updated: ${new Date().toLocaleTimeString()}`, false);
-        }
-
-        // --- UI RENDERING ---
-
-        function updateUI(income = 0) {
-            document.getElementById('money-display').innerText = `$${Math.floor(game.money).toLocaleString()}`;
-            document.getElementById('pps-display').innerText = `$${income.toLocaleString()}/s`;
-            renderAssets();
-        }
-
-        function renderAssets() {
-            const list = document.getElementById('asset-list');
-            list.innerHTML = '';
-            game.assets.forEach(a => {
-                const card = document.createElement('div');
-                card.className = 'asset-card';
-                card.innerHTML = `
-                    <div class="card-info">
-                        <h3>${a.name} <small>[${a.count}]</small></h3>
-                        <p>Cost: $${Math.floor(a.cost).toLocaleString()} | +$${a.income}/s</p>
-                    </div>
-                    <button class="action-btn" onclick="buyAsset(${a.id})" ${game.money < a.cost ? 'disabled' : ''}>EXPAND</button>
-                `;
-                list.appendChild(card);
-            });
-        }
-
-        function renderMarket() {
-            const list = document.getElementById('market-list');
-            list.innerHTML = '';
-            game.stocks.forEach(s => {
-                const trendClass = s.trend >= 0 ? 'trend-up' : 'trend-down';
-                const trendSign = s.trend >= 0 ? '▲' : '▼';
-                
-                const item = document.createElement('div');
-                item.className = 'stock-item';
-                item.innerHTML = `
-                    <div class="card-info">
-                        <h3>${s.name}</h3>
-                        <p>Owned: ${s.owned}</p>
-                    </div>
-                    <div class="stat-box" style="align-items:flex-end;">
-                        <span class="stock-price ${trendClass}">$${s.price.toFixed(2)} ${trendSign}</span>
-                        <div class="market-controls">
-                            <button class="m-btn buy-m" onclick="trade(${s.id}, 1)">BUY</button>
-                            <button class="m-btn sell-m" onclick="trade(${s.id}, -1)">SELL</button>
-                        </div>
-                    </div>
-                `;
-                list.appendChild(item);
-            });
+            if(currentView === 'market') render();
         }
 
         // --- ACTIONS ---
+        function tap() {
+            state.money += state.clickPower;
+            addXp(5);
+            render();
+        }
 
         function buyAsset(id) {
-            let a = game.assets[id];
-            if (game.money >= a.cost) {
-                game.money -= a.cost;
+            const a = state.assets[id];
+            if (state.money >= a.cost) {
+                state.money -= a.cost;
                 a.count++;
                 a.cost *= 1.3;
-                log(`Acquired ${a.name}. Operational capacity increased.`, false);
-                updateUI();
+                addXp(20);
+                render();
             }
         }
 
-        function trade(id, direction) {
-            let s = game.stocks[id];
-            if (direction === 1) { // Buy
-                if (game.money >= s.price) {
-                    game.money -= s.price;
-                    s.owned++;
-                    log(`Purchased 1 unit of ${s.name}`, false);
-                } else {
-                    log(`Insufficient funds for ${s.name}`, true);
-                }
-            } else { // Sell
-                if (s.owned > 0) {
-                    game.money += s.price;
-                    s.owned--;
-                    log(`Liquidated ${s.name} position. Profit secured.`, false);
-                } else {
-                    log(`No ${s.name} holdings to liquidate.`, true);
-                }
+        function buyResearch(id) {
+            const r = state.research[id];
+            if (state.money >= r.cost && !r.unlocked) {
+                state.money -= r.cost;
+                r.unlocked = true;
+                if (r.type === 'click') state.clickPower *= r.mult;
+                addXp(500);
+                render();
             }
-            renderMarket();
-            updateUI();
         }
 
-        function log(msg, isWarn) {
-            const content = document.getElementById('log-content');
-            const div = document.createElement('div');
-            div.className = isWarn ? 'log-entry log-warn' : 'log-entry';
-            div.innerText = `> ${msg}`;
-            content.prepend(div);
-            if (content.childNodes.length > 20) content.lastChild.remove();
+        function addXp(amt) {
+            state.xp += amt;
+            if (state.xp >= state.nextLevelXp) {
+                state.level++;
+                state.xp = 0;
+                state.nextLevelXp *= 1.5;
+                // Level up rewards
+                state.clickPower += (state.level * 2);
+            }
         }
 
-        function saveGame() {
-            localStorage.setItem('mogulProData', JSON.stringify(game));
+        // --- UI SYSTEM ---
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            render();
         }
 
-        // Start
-        init();
-        renderMarket(); // Initial market render
-    </script>
-</body>
-</html>
+        function updateHUD() {
+            document.getElementById('money-display').innerText = `$${Math.floor(state.money).toLocaleString()}`;
+            document.getElementById('level-display').innerText = `Level ${state.level} • ${getRank()}`;
+            const xpPercent = (state.xp / state.nextLevelXp) * 100;
+            document.getElementById('xp-bar-fill').style.width = `${xpPercent}%`;
+        }
+
+        function getRank() {
+            if (state.level < 5) return "Novice";
+            if (state.level < 15) return "Manager";
+            if (state.level < 30) return "CEO";
+            return "Overlord";
+        }
+
+        function render() {
+            updateHUD();
+            const viewport = document.getElementById('viewport');
+            viewport.innerHTML = '';
+
+            if (currentView === 'tap') {
+                viewport.innerHTML = `
+                    <div id="clicker-container">
+                        <div id="big-tap" onclick="tap()">TAP<br>PROFIT</div>
+                        <p style="color:var(--text-dim); margin-
