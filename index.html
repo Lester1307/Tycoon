@@ -17,169 +17,175 @@
             --text-dim: #9ca3af;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); overflow: hidden; }
 
-        /* --- SCENE MANAGEMENT --- */
-        .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; }
+        /* --- SCENE SYSTEM --- */
+        .scene {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column;
+        }
         .scene.active { display: flex; }
 
         /* --- SCENE 1: SPLASH --- */
         #splash-scene {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80');
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80');
             background-size: cover; background-position: center;
             justify-content: center; align-items: center; text-align: center;
         }
-        .splash-title { font-size: 3rem; font-weight: 900; text-shadow: 0 0 20px rgba(0,0,0,0.8); margin: 0; }
-        .splash-subtitle { color: var(--gold); font-size: 1.2rem; letter-spacing: 4px; margin-bottom: 40px; }
-        .continue-btn {
-            background: var(--gold); color: black; padding: 15px 60px; border-radius: 30px;
-            font-weight: bold; font-size: 1.2rem; border: none; cursor: pointer;
+        .splash-title { font-size: 3.5rem; font-weight: 900; text-shadow: 0 0 20px rgba(0,0,0,1); margin: 0; color: white; }
+        .splash-subtitle { color: var(--gold); font-size: 1.2rem; letter-spacing: 5px; margin-bottom: 40px; text-transform: uppercase; }
+        .btn-get-started {
+            padding: 15px 50px; font-size: 1.2rem; font-weight: bold; border-radius: 40px;
+            border: none; background: var(--accent); color: black; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
         }
 
-        /* --- SCENE 2: ONBOARDING --- */
-        #onboarding-scene { justify-content: center; align-items: center; padding: 20px; }
-        .modal { background: var(--panel); padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: none; background: #1f2937; color: white; }
+        /* --- SCENE 2: PROFILE (NAME ENTRY) --- */
+        #profile-scene { justify-content: center; align-items: center; padding: 20px; }
+        .modal {
+            background: var(--panel); padding: 40px 30px; border-radius: 24px;
+            width: 100%; max-width: 400px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal h2 { margin-top: 0; font-size: 1.8rem; }
+        input {
+            width: 100%; padding: 15px; margin: 25px 0; border-radius: 12px;
+            border: 1px solid #374151; background: #1f2937; color: white; font-size: 1.1rem; outline: none;
+        }
+        input:focus { border-color: var(--accent); }
+        .btn-primary {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            background: var(--accent); color: black; font-weight: bold; font-size: 1.1rem; cursor: pointer;
+        }
 
         /* --- SCENE 3: CITY SELECTION --- */
-        #city-scene { padding: 20px; }
+        #city-scene { padding: 20px; overflow-y: auto; }
         .city-card {
-            position: relative; width: 100%; height: 180px; border-radius: 15px;
-            overflow: hidden; margin-bottom: 20px; cursor: pointer;
+            position: relative; width: 100%; height: 160px; border-radius: 15px;
+            overflow: hidden; margin-bottom: 15px; cursor: pointer; transition: 0.3s;
         }
-        .city-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .city-card:hover img { transform: scale(1.1); }
+        .city-card img { width: 100%; height: 100%; object-fit: cover; }
+        .city-card:hover { transform: translateY(-5px); }
         .city-overlay {
             position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
         }
+        .city-overlay h3 { margin: 0; font-size: 1.4rem; }
 
-        /* --- SCENE 4: DASHBOARD --- */
+        /* --- SCENE 4: MAIN DASHBOARD --- */
         #dashboard-scene { padding: 0; }
         #dashboard-header {
-            padding: 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 20px; background: #000; border-bottom: 2px solid var(--accent);
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .empire-title { font-size: 1.5rem; font-weight: 800; margin: 0; }
-        .empire-subtitle { font-size: 0.8rem; color: var(--text-dim); }
-
-        #main-viewport { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
-
-        /* Stats Bar (Active vs Vacant) */
-        .stats-toggle {
-            display: flex; background: #1f2937; border-radius: 10px; margin: 15px 0; padding: 5px;
+        .user-info-mini { display: flex; align-items: center; gap: 10px; }
+        .profile-circle { 
+            width: 40px; height: 40px; background: var(--secondary); 
+            border-radius: 50%; display: flex; justify-content: center; 
+            align-items: center; font-weight: bold; cursor: pointer;
         }
-        .toggle-item { flex: 1; text-align: center; padding: 8px; font-size: 0.8rem; cursor: pointer; border-radius: 8px; }
-        .toggle-item.active { background: var(--success); color: white; }
+        #money-display { font-size: 1.6rem; font-weight: 800; color: var(--gold); }
+        #city-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
 
-        /* Filters */
-        .filters { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; }
-        .filter-chip {
-            background: #1f2937; padding: 6px 15px; border-radius: 20px; font-size: 0.75rem; white-space: nowrap;
+        #viewport { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
+        .card {
+            background: var(--panel); border-radius: 15px; padding: 15px;
+            margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
         }
-        .filter-chip.active { background: var(--accent); color: black; }
-
-        /* Business Cards */
-        .biz-card {
-            background: var(--panel); border-radius: 12px; padding: 15px;
-            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        .card-info h3 { margin: 0; font-size: 1rem; color: var(--accent); }
+        .card-info p { margin: 4px 0 0; font-size: 0.8rem; color: var(--text-dim); }
+        .buy-btn {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border: none; color: white; padding: 10px 14px; border-radius: 8px; font-weight: bold;
         }
-        .biz-info h4 { margin: 0; font-size: 1rem; }
-        .biz-info p { margin: 4px 0 0; font-size: 0.75rem; color: var(--text-dim); }
 
-        /* Bottom Nav */
+        /* --- NAVIGATION --- */
         #nav-bar {
             position: fixed; bottom: 0; width: 100%; height: 70px;
             background: rgba(17, 24, 39, 0.95); display: flex;
             justify-content: space-around; align-items: center;
             border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: env(safe-area-inset-bottom);
         }
-        .nav-item { text-align: center; color: var(--text-dim); font-size: 0.7rem; cursor: pointer; }
+        .nav-item { text-align: center; color: var(--text-dim); font-size: 0.7rem; font-weight: bold; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
         .nav-icon { font-size: 1.4rem; display: block; }
 
-        /* Day Summary Overlay */
-        #day-overlay {
+        /* --- REUSABLE MODAL --- */
+        #name-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 3000; display: none;
-            flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+            background: rgba(0,0,0,0.8); z-index: 5000; display: none;
+            justify-content: center; align-items: center; padding: 20px;
         }
-        .summary-card { background: var(--panel); width: 100%; max-width: 350px; padding: 30px; border-radius: 20px; }
-        .summary-row { display: flex; justify-content: space-between; margin: 15px 0; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-    <!-- SCENE 1: SPLASH -->
+    <!-- SCENE 1: SPLASH SCREEN -->
     <div id="splash-scene" class="scene active">
         <h1 class="splash-title">BUSINESS INC</h1>
         <h2 class="splash-subtitle">TYCOON SIMULATOR</h2>
-        <button class="continue-btn" onclick="showOnboarding()">CONTINUE</button>
+        <button class="btn-get-started" onclick="goToProfile()">GET STARTED</button>
     </div>
 
-    <!-- SCENE 2: ONBOARDING -->
-    <div id="onboarding-scene" class="scene">
+    <!-- SCENE 2: PROFILE ENTRY -->
+    <div id="profile-scene" class="scene">
         <div class="modal">
-            <h2>WELCOME</h2>
-            <p>Enter your name to start your empire</p>
-            <input type="text" id="name-input" placeholder="Username...">
-            <button class="btn-primary" style="width:100%; padding:12px; background:var(--accent); border:none; border-radius:8px; font-weight:bold;" onclick="finishOnboarding()">START</button>
+            <h2>IDENTIFY YOURSELF</h2>
+            <p style="color:var(--text-dim)">Enter your name to begin your journey</p>
+            <input type="text" id="username-input" placeholder="Enter Name...">
+            <button class="btn-primary" onclick="saveUsername()">CONTINUE</button>
         </div>
     </div>
 
     <!-- SCENE 3: CITY SELECTION -->
     <div id="city-scene" class="scene">
-        <h2 style="text-align:center">SELECT CITY</h2>
+        <h2 style="text-align:center">SELECT HEADQUARTERS</h2>
         <div class="city-card" onclick="selectCity('London')">
             <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=500&q=80">
-            <div class="city-overlay"><h3>London</h3><p>Premium Real Estate</p></div>
+            <div class="city-overlay"><h3>London</h3><p>High Luxury Market</p></div>
         </div>
         <div class="city-card" onclick="selectCity('Mumbai')">
             <img src="https://images.unsplash.com/photo-1566552881560-0be862a7c445?auto=format&fit=crop&w=500&q=80">
-            <div class="city-overlay"><h3>Mumbai</h3><p>Rapid Growth Market</p></div>
+            <div class="city-overlay"><h3>Mumbai</h3><p>Massive Scale Market</p></div>
         </div>
         <div class="city-card" onclick="selectCity('New York')">
             <img src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=500&q=80">
-            <div class="city-overlay"><h3>New York</h3><p>High Risk, High Reward</p></div>
+            <div class="city-overlay"><h3>New York</h3><p>The Global Hub</p></div>
         </div>
     </div>
 
-    <!-- SCENE 4: DASHBOARD -->
+    <!-- SCENE 4: MAIN DASHBOARD -->
     <div id="dashboard-scene" class="scene">
         <div id="dashboard-header">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="user-info-mini">
+                <div class="profile-circle" onclick="openNameModal()">👤</div>
                 <div>
-                    <h2 class="empire-title" id="user-name-display">Player</h2>
-                    <span class="empire-subtitle" id="city-name-display">City</span>
-                </div>
-                <div style="text-align:right">
-                    <span class="stat-label" style="font-size:0.6rem; color:var(--gold)">CAPITAL</span>
-                    <div id="money-display" style="font-size:1.5rem; color:var(--gold);">$0</div>
+                    <div id="user-name-display" style="font-weight:bold; font-size:0.9rem;">Player</div>
+                    <div id="city-label">City Name</div>
                 </div>
             </div>
+            <div id="money-display">$0</div>
         </div>
 
-        <div id="main-viewport">
-            <!-- Dynamic content here -->
+        <div id="viewport">
+            <!-- Content injected by JS -->
         </div>
 
         <div id="nav-bar">
-            <div class="nav-item active" onclick="switchTab('city', this)"><span class="nav-icon">🏙️</span>City</div>
-            <div class="nav-item" onclick="switchTab('business', this)"><span class="nav-icon">🏢</span>Empire</div>
-            <div class="nav-item" onclick="switchTab('supply', this)"><span class="nav-icon">📦</span>Supply</div>
-            <div class="nav-item" onclick="switchTab('day', this)"><span class="nav-icon">📅</span>Day</div>
+            <div class="nav-item active" onclick="changeView('city', this)"><span class="nav-icon">🏙️</span>City</div>
+            <div class="nav-item" onclick="changeView('assets', this)"><span class="nav-icon">🏢</span>Empire</div>
+            <div class="nav-item" onclick="changeView('supply', this)"><span class="nav-icon">📦</span>Supply</div>
         </div>
     </div>
 
-    <!-- DAY SUMMARY MODAL -->
-    <div id="day-overlay">
-        <div class="summary-card">
-            <h2 style="text-align:center; color:var(--gold)">DAY SUMMARY</h2>
-            <div class="summary-row"><span>Revenue:</span> <span id="sum-rev" class="profit">$0</span></div>
-            <div class="summary-row"><span>Expenses:</span> <span id="sum-exp" class="loss">$0</span></div>
-            <hr style="border:0; border-top:1px solid #374151">
-            <div class="summary-row" style="font-size:1.5rem"><span>Net:</span> <span id="sum-net">$0</span></div>
-            <button class="btn-primary" style="width:100%; padding:15px; background:var(--accent); border:none; border-radius:10px; font-weight:bold;" onclick="closeSummary()">CONTINUE</button>
+    <!-- NAME CHANGE MODAL -->
+    <div id="name-modal">
+        <div class="modal">
+            <h2>CHANGE NAME</h2>
+            <input type="text" id="new-name-input">
+            <button class="btn-primary" onclick="updateUsername()">SAVE NEW NAME</button>
+            <button onclick="closeNameModal()" style="background:none; border:none; color:var(--text-dim); margin-top:15px; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
@@ -189,72 +195,43 @@
             user: "",
             money: 50000,
             city: "",
-            day: 1,
-            view: 'city', // 'city', 'business', 'supply', 'day'
-            filter: 'all', // 'all', 'office', 'retail'
-            status: 'active', // 'active', 'vacant'
-            inventory: { "Coffee": 50, "Tech": 20, "Gold": 10, "Paper": 100 },
-            buildings: [] // Will be populated per city
-        };
-
-        const CITY_DATA = {
-            "London": { buildings: 10, multiplier: 1.2 },
-            "Mumbai": { buildings: 10, multiplier: 1.0 },
-            "New York": { buildings: 10, multiplier: 1.5 }
-        };
-
-        const BUSINESS_DB = {
-            office: [
-                { name: "Law Firm", revenue: 1500, cost: 400, supply: "Paper" },
-                { name: "Web Design", revenue: 2200, cost: 600, supply: "Tech" },
-                { name: "Marketing", revenue: 3000, cost: 800, supply: "Tech" }
-            ],
-            retail: [
-                { name: "Jewelry Shop", revenue: 5000, cost: 1500, supply: "Gold" },
-                { name: "Coffee Shop", revenue: 1200, cost: 300, supply: "Coffee" },
-                { name: "Restaurant", revenue: 3500, cost: 1200, supply: "Coffee" }
+            assets: [
+                { id: 0, name: "Coffee Shop", cost: 500, income: 50, count: 0 },
+                { id: 1, name: "Law Firm", cost: 2500, income: 300, count: 0 },
+                { id: 2, name: "Tech Startup", cost: 15000, income: 1800, count: 0 }
             ]
         };
 
-        // --- SCENE NAVIGATION ---
-        function showScene(id) {
+        let currentView = 'city';
+
+        // --- SCENE CONTROLLER ---
+        function showScene(sceneId) {
             document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
-            document.getElementById(id + '-scene').classList.add('active');
+            document.getElementById(sceneId + '-scene').classList.add('active');
         }
 
-        function showOnboarding() { showScene('onboarding'); }
+        // --- FLOW LOGIC ---
+        function goToProfile() {
+            showScene('profile');
+        }
 
-        function finishOnboarding() {
-            const name = document.getElementById('name-input').value;
-            if(!name) return alert("Please enter a name");
+        function saveUsername() {
+            const name = document.getElementById('username-input').value;
+            if (!name) return alert("Please enter a name");
             game.user = name;
-            document.getElementById('onboarding-ui').style.display = 'none';
-            document.getElementById('city-ui').style.display = 'block';
+            showScene('city');
         }
 
         function selectCity(cityName) {
             game.city = cityName;
-            // Build the city buildings
-            game.buildings = [];
-            for(let i=1; i<=10; i++) {
-                game.buildings.push({
-                    id: i,
-                    name: `${cityName} Tower ${i}`,
-                    rent: 1000 * i,
-                    businesses: [
-                        { ...BUSINESS_DB.office[0], owned: Math.random() > 0.5 },
-                        { ...BUSINESS_DB.retail[0], owned: Math.random() > 0.5 }
-                    ]
-                });
-            }
-            document.getElementById('overlay').style.display = 'none';
             showScene('dashboard');
             changeView('city');
+            updateHUD();
         }
 
         // --- DASHBOARD LOGIC ---
         function changeView(view, el) {
-            game.view = view;
+            currentView = view;
             if(el) {
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 el.classList.add('active');
@@ -262,210 +239,92 @@
             render();
         }
 
-        function switchTab(type, el) {
-            // This handles the "Active/Vacant" and "All/Office/Retail" filters
-            if(type === 'city') {
-                game.status = 'active';
-                game.filter = 'all';
-            } else if (type === 'business') {
-                // Logic for filtering
-            }
-            render();
+        function updateHUD() {
+            document.getElementById('user-name-display').innerText = game.user;
+            document.getElementById('city-label').innerText = game.city;
+            document.getElementById('money-display').innerText = `$${Math.floor(game.money).toLocaleString()}`;
         }
 
         function render() {
-            const view = document.getElementById('viewport');
-            view.innerHTML = '';
-            document.getElementById('user-name-display').innerText = game.user;
-            document.getElementById('city-name-display').innerText = game.city;
-            document.getElementById('money-display').innerText = `$${Math.floor(game.money).toLocaleString()}`;
-
-            if (game.view === 'city') {
-                renderCityView(view);
-            } else if (game.view === 'business') {
-                renderBusinessView(view);
-            } else if (game.view === 'supply') {
-                renderSupplyView(view);
-            } else if (game.view === 'day') {
-                renderDayView(view);
-            }
-        }
-
-        function renderCityView(container) {
-            container.innerHTML = `<h2 style="margin-top:0">Buildings in ${game.city}</h2>`;
-            game.buildings.forEach(b => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-info">
-                        <h3>${b.name}</h3>
-                        <p>Rent: $${b.rent}/day</p>
-                    </div>
-                    <button class="buy-btn" onclick="openBuilding(${b.id})">MANAGE</button>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function openBuilding(id) {
-            const b = game.buildings.find(x => x.id === id);
             const viewport = document.getElementById('viewport');
-            viewport.innerHTML = `<button onclick="changeView('city')" style="background:none; border:none; color:var(--accent); cursor:pointer; margin-bottom:10px;">← BACK</button>`;
-            viewport.innerHTML += `<h2>${b.name}</h2>`;
+            viewport.innerHTML = '';
+            updateHUD();
 
-            const sections = ['office', 'retail'];
-            sections.forEach(sec => {
-                viewport.innerHTML += `<div class="section-header">${sec.toUpperCase()} SECTION</div>`;
-                b.businesses.forEach((biz, idx) => {
-                    if(biz.type === sec || (sec === 'office' && biz.name.includes('Law') || sec === 'retail' && biz.name.includes('Shop'))) {
-                        // Simplified for demo: checking if it belongs to the category
-                    }
-                    // For demo, we show all businesses in the building
+            if (currentView === 'city') {
+                viewport.innerHTML = `<h2 style="text-align:center">Welcome to ${game.city}</h2><p style="text-align:center; color:var(--text-dim)">Tap 'Empire' to manage your assets.</p>`;
+            } 
+            else if (currentView === 'assets') {
+                game.assets.forEach(a => {
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
                         <div class="card-info">
-                            <h3>${biz.name}</h3>
-                            <p>${biz.owned ? '✅ OPERATIONAL' : '❌ VACANT'}</p>
-                            <p>Daily: $${biz.revenue}</p>
+                            <h3>${a.name} <small>[${a.count}]</small></h3>
+                            <p>Cost: $${a.cost.toLocaleString()} | +$${a.income}/s</p>
                         </div>
-                        <button class="buy-btn" onclick="lease(${id}, '${sec}', ${idx})" ${biz.owned ? 'disabled' : ''}>
-                            ${biz.owned ? 'LEASED' : 'LEASE'}
-                        </button>
+                        <button class="buy-btn" onclick="buyAsset(${a.id})" ${game.money < a.cost ? 'disabled' : ''}>BUY</button>
                     `;
                     viewport.appendChild(card);
                 });
-            });
-        }
-
-        function lease(bId, sec, idx) {
-            const b = game.buildings.find(x => x.id === bId);
-            const biz = b.businesses[idx];
-            if(game.money >= b.rent) {
-                game.money -= b.rent;
-                biz.owned = true;
-                render();
-                openBuilding(bId);
-            } else {
-                alert("Not enough money for rent!");
+            }
+            else if (currentView === 'supply') {
+                viewport.innerHTML = `<div class="card"><h3>Supply Center</h3><p>Coming in next update!</p></div>`;
             }
         }
 
-        function renderBusinessView(container) {
-            container.innerHTML = `<h2>Your Empire</h2>`;
-            let activeCount = 0;
-            game.buildings.forEach(b => {
-                b.businesses.forEach(biz => {
-                    if(biz.owned) {
-                        activeCount++;
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.innerHTML = `
-                            <div class="card-info">
-                                <h3>${biz.name}</h3>
-                                <p>${b.name}</p>
-                            </div>
-                            <div style="color:var(--success)">+$${biz.revenue}/d</div>
-                        `;
-                        container.appendChild(card);
-                    }
-                });
-            });
-            container.innerHTML += `<p style="text-align:center; color:var(--text-dim)">${activeCount} Businesses Active</p>`;
-        }
-
-        function renderSupplyView(container) {
-            container.innerHTML = `<h2>Distribution Hub</h2>`;
-            const items = [
-                { name: "Coffee", cost: 100 },
-                { name: "Tech", cost: 500 },
-                { name: "Gold", cost: 2000 },
-                { name: "Paper", cost: 50 }
-            ];
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-info">
-                        <h3>${item.name}</h3>
-                        <p>Stock: ${game.inventory[item.name]}</p>
-                        <p>Cost: $${item.cost} per 10</p>
-                    </div>
-                    <button class="buy-btn" onclick="buySupplies('${item.name}', ${item.cost})">BUY 10</button>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function buySupplies(name, cost) {
-            if(game.money >= cost) {
-                game.money -= cost;
-                game.inventory[name] += 10;
+        function buyAsset(id) {
+            const a = game.assets.find(x => x.id === id);
+            if (game.money >= a.cost) {
+                game.money -= a.cost;
+                a.count++;
+                a.cost = Math.floor(a.cost * 1.4);
                 render();
-            } else {
-                alert("Insufficient Funds!");
             }
         }
 
-        function renderDayView(container) {
-            container.innerHTML = `
-                <div style="text-align:center; padding-top:50px;">
-                    <div style="font-size:4rem;">📅</div>
-                    <h2>Day ${game.day}</h2>
-                    <p>Prepare your businesses and supplies for the next day.</p>
-                    <button class="btn-primary" style="width:100%; padding:20px; background:var(--accent); border:none; border-radius:15px; font-weight:bold;" onclick="processDay()">END DAY & CALCULATE</button>
-                </div>
-            `;
+        // --- NAME CHANGE LOGIC ---
+        function openNameModal() {
+            document.getElementById('name-modal').style.display = 'flex';
+            document.getElementById('new-name-input').value = game.user;
         }
 
-        function processDay() {
-            let dailyRev = 0;
-            let dailyExp = 0;
-
-            // 1. Rent & Expenses
-            game.buildings.forEach(b => {
-                dailyExp += b.rent;
-            });
-
-            // 2. Revenue
-            game.buildings.forEach(b => {
-                b.businesses.forEach(biz => {
-                    if(biz.owned) {
-                        // Check supplies
-                        if(game.inventory[biz.supply] >= biz.supplyCost) {
-                            dailyRev += biz.revenue;
-                            game.inventory[biz.supply] -= biz.supplyCost;
-                        } else {
-                            console.log(`${biz.name} ran out of ${biz.supply}!`);
-                        }
-                    }
-                });
-            });
-
-            game.money += (dailyRev - dailyExp);
-            game.day++;
-
-            // Show Summary
-            document.getElementById('sum-rev').innerText = `$${dailyRev.toLocaleString()}`;
-            document.getElementById('sum-exp').innerText = `-$${dailyExp.toLocaleString()}`;
-            const net = dailyRev - dailyExp;
-            document.getElementById('sum-net').innerText = `$${net.toLocaleString()}`;
-            document.getElementById('sum-net').className = net >= 0 ? 'profit' : 'loss';
-            
-            document.getElementById('day-overlay').style.display = 'flex';
+        function closeNameModal() {
+            document.getElementById('name-modal').style.display = 'none';
         }
 
-        function closeSummary() {
-            document.getElementById('day-overlay').style.display = 'none';
-            render();
+        function updateUsername() {
+            const newName = document.getElementById('new-name-input').value;
+            if(newName) {
+                game.user = newName;
+                updateHUD();
+                closeNameModal();
+            }
         }
 
-        function saveGame() {
-            localStorage.setItem('mogul_master_save', JSON.stringify(game));
-        }
+        // --- GAME LOOP ---
+        setInterval(() => {
+            let income = 0;
+            game.assets.forEach(a => income += (a.count * a.income));
+            game.money += income;
+            updateHUD();
+        }, 1000);
 
         // Initialize
-        window.onload = init;
+        window.onload = () => {
+            const saved = localStorage.getItem('mogul_master_save');
+            if(saved) {
+                game = JSON.parse(saved);
+                showScene('dashboard');
+                changeView('city');
+            } else {
+                showScene('splash');
+            }
+        };
+
+        // Auto-save
+        setInterval(() => {
+            localStorage.setItem('mogul_master_save', JSON.stringify(game));
+        }, 10000);
 
     </script>
 </body>
