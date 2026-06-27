@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MOGUL: WORLD EMPIRE</title>
+    <title>BUSINESS INC: EMPIRE COMMAND</title>
     <style>
         :root {
             --bg: #05070a;
@@ -17,61 +18,37 @@
             --text-dim: #9ca3af;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); overflow: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
 
         /* --- SCENE SYSTEM --- */
-        .scene {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; flex-direction: column;
-        }
+        .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; }
         .scene.active { display: flex; }
 
         /* --- SCENE 1: SPLASH --- */
         #splash-scene {
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80');
-            background-size: cover; background-position: center;
-            justify-content: center; align-items: center; text-align: center;
+            background-size: cover; background-position: center; justify-content: center; align-items: center; text-align: center;
         }
-        .splash-title { font-size: 3.5rem; font-weight: 900; text-shadow: 0 0 20px rgba(0,0,0,1); margin: 0; color: white; }
+        .splash-title { font-size: 3rem; font-weight: 900; text-shadow: 0 0 20px rgba(0,0,0,0.8); margin: 0; color: white; }
         .splash-subtitle { color: var(--gold); font-size: 1.2rem; letter-spacing: 5px; margin-bottom: 40px; text-transform: uppercase; }
         .btn-get-started {
             padding: 15px 50px; font-size: 1.2rem; font-weight: bold; border-radius: 40px;
             border: none; background: var(--accent); color: black; cursor: pointer;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 242, 0.5);
         }
 
-        /* --- SCENE 2: PROFILE (NAME ENTRY) --- */
-        #profile-scene { justify-content: center; align-items: center; padding: 20px; }
-        .modal {
-            background: var(--panel); padding: 40px 30px; border-radius: 24px;
-            width: 100%; max-width: 400px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .modal h2 { margin-top: 0; font-size: 1.8rem; }
-        input {
-            width: 100%; padding: 15px; margin: 25px 0; border-radius: 12px;
-            border: 1px solid #374151; background: #1f2937; color: white; font-size: 1.1rem; outline: none;
-        }
-        input:focus { border-color: var(--accent); }
-        .btn-primary {
-            width: 100%; padding: 15px; border-radius: 12px; border: none;
-            background: var(--accent); color: black; font-weight: bold; font-size: 1.1rem; cursor: pointer;
-        }
+        /* --- SCENE 2: ONBOARDING --- */
+        #onboarding-scene { justify-content: center; align-items: center; padding: 20px; }
+        .modal { background: var(--panel); padding: 40px 30px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        input { width: 100%; padding: 15px; margin: 20px 0; border-radius: 12px; border: 1px solid #374151; background: #1f2937; color: white; font-size: 1.1rem; outline: none; }
+        .btn-primary { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--accent); color: black; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 
         /* --- SCENE 3: CITY SELECTION --- */
         #city-scene { padding: 20px; overflow-y: auto; }
-        .city-card {
-            position: relative; width: 100%; height: 160px; border-radius: 15px;
-            overflow: hidden; margin-bottom: 15px; cursor: pointer; transition: 0.3s;
-        }
+        .city-card { position: relative; width: 100%; height: 180px; border-radius: 15px; overflow: hidden; margin-bottom: 15px; cursor: pointer; }
         .city-card img { width: 100%; height: 100%; object-fit: cover; }
-        .city-card:hover { transform: translateY(-5px); }
-        .city-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-        }
-        .city-overlay h3 { margin: 0; font-size: 1.4rem; }
+        .city-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
 
         /* --- SCENE 4: MAIN DASHBOARD --- */
         #dashboard-scene { padding: 0; }
@@ -79,28 +56,16 @@
             padding: 20px; background: #000; border-bottom: 2px solid var(--accent);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .user-info-mini { display: flex; align-items: center; gap: 10px; }
-        .profile-circle { 
-            width: 40px; height: 40px; background: var(--secondary); 
-            border-radius: 50%; display: flex; justify-content: center; 
-            align-items: center; font-weight: bold; cursor: pointer;
-        }
-        #money-display { font-size: 1.6rem; font-weight: 800; color: var(--gold); }
+        #money-display { font-size: 1.8rem; font-weight: 800; color: var(--gold); }
         #city-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
 
         #viewport { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
-        .card {
-            background: var(--panel); border-radius: 15px; padding: 15px;
-            margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
-        }
+        .card { background: var(--panel); border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .card-info h3 { margin: 0; font-size: 1rem; color: var(--accent); }
         .card-info p { margin: 4px 0 0; font-size: 0.8rem; color: var(--text-dim); }
-        .buy-btn {
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            border: none; color: white; padding: 10px 14px; border-radius: 8px; font-weight: bold;
-        }
+        .buy-btn { background: var(--accent); border: none; color: black; padding: 10px 14px; border-radius: 8px; font-weight: bold; }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION BAR --- */
         #nav-bar {
             position: fixed; bottom: 0; width: 100%; height: 70px;
             background: rgba(17, 24, 39, 0.95); display: flex;
@@ -111,36 +76,42 @@
         .nav-item.active { color: var(--accent); }
         .nav-icon { font-size: 1.4rem; display: block; }
 
-        /* --- REUSABLE MODAL --- */
-        #name-modal {
+        /* --- DAY SUMMARY OVERLAY --- */
+        #day-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 5000; display: none;
-            justify-content: center; align-items: center; padding: 20px;
+            background: rgba(0,0,0,0.95); z-index: 5000; display: none;
+            flex-direction: column; justify-content: center; align-items: center; padding: 20px;
         }
+        .summary-card { background: var(--panel); width: 100%; max-width: 380px; padding: 30px; border-radius: 25px; border: 1px solid var(--gold); }
+        .summary-row { display: flex; justify-content: space-between; margin: 15px 0; font-size: 1.1rem; }
+        .profit { color: var(--success); font-weight: bold; }
+        .loss { color: var(--danger); font-weight: bold; }
+        .btn-continue { width: 100%; padding: 15px; margin-top: 20px; border-radius: 12px; border: none; background: #3b82f6; color: white; font-weight: bold; cursor: pointer; }
+
     </style>
 </head>
 <body>
 
-    <!-- SCENE 1: SPLASH SCREEN -->
+    <!-- SCENE 1: SPLASH -->
     <div id="splash-scene" class="scene active">
         <h1 class="splash-title">BUSINESS INC</h1>
         <h2 class="splash-subtitle">TYCOON SIMULATOR</h2>
         <button class="btn-get-started" onclick="goToProfile()">GET STARTED</button>
     </div>
 
-    <!-- SCENE 2: PROFILE ENTRY -->
+    <!-- SCENE 2: PROFILE -->
     <div id="profile-scene" class="scene">
         <div class="modal">
-            <h2>IDENTIFY YOURSELF</h2>
-            <p style="color:var(--text-dim)">Enter your name to begin your journey</p>
-            <input type="text" id="username-input" placeholder="Enter Name...">
-            <button class="btn-primary" onclick="saveUsername()">CONTINUE</button>
+            <h2>WELCOME CEO</h2>
+            <p>Enter your name to begin</p>
+            <input type="text" id="name-input" placeholder="Your Name...">
+            <button class="btn-primary" onclick="saveProfile()">START CAREER</button>
         </div>
     </div>
 
     <!-- SCENE 3: CITY SELECTION -->
     <div id="city-scene" class="scene">
-        <h2 style="text-align:center">SELECT HEADQUARTERS</h2>
+        <h2 style="text-align:center">SELECT CITY</h2>
         <div class="city-card" onclick="selectCity('London')">
             <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=500&q=80">
             <div class="city-overlay"><h3>London</h3><p>High Luxury Market</p></div>
@@ -155,81 +126,95 @@
         </div>
     </div>
 
-    <!-- SCENE 4: MAIN DASHBOARD -->
+    <!-- SCENE 4: DASHBOARD -->
     <div id="dashboard-scene" class="scene">
         <div id="dashboard-header">
             <div class="user-info-mini">
-                <div class="profile-circle" onclick="openNameModal()">👤</div>
+                <div class="profile-circle" onclick="showProfileModal()" style="width:40px;height:40px;background:var(--secondary);border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;">👤</div>
                 <div>
                     <div id="user-name-display" style="font-weight:bold; font-size:0.9rem;">Player</div>
-                    <div id="city-label">City Name</div>
+                    <div id="city-label" style="font-size:0.7rem; color:var(--text-dim);">City</div>
                 </div>
             </div>
-            <div id="money-display">$0</div>
+            <div id="money-display">$50,000</div>
         </div>
 
-        <div id="viewport">
-            <!-- Content injected by JS -->
-        </div>
+        <div id="viewport"></div>
 
         <div id="nav-bar">
             <div class="nav-item active" onclick="changeView('city', this)"><span class="nav-icon">🏙️</span>City</div>
             <div class="nav-item" onclick="changeView('assets', this)"><span class="nav-icon">🏢</span>Empire</div>
-            <div class="nav-item" onclick="changeView('supply', this)"><span class="nav-icon">📦</span>Supply</div>
+            <div class="nav-item" onclick="changeView('day', this)"><span class="nav-icon">📅</span>Day</div>
         </div>
     </div>
 
-    <!-- NAME CHANGE MODAL -->
-    <div id="name-modal">
-        <div class="modal">
-            <h2>CHANGE NAME</h2>
-            <input type="text" id="new-name-input">
-            <button class="btn-primary" onclick="updateUsername()">SAVE NEW NAME</button>
-            <button onclick="closeNameModal()" style="background:none; border:none; color:var(--text-dim); margin-top:15px; cursor:pointer;">Cancel</button>
+    <!-- DAY SUMMARY MODAL -->
+    <div id="day-overlay">
+        <div class="summary-card">
+            <h2 style="text-align:center; color:var(--gold)">DAILY SUMMARY</h2>
+            <div class="summary-row"><span>Revenue:</span> <span id="sum-rev" class="profit">$0</span></div>
+            <div class="summary-row"><span>Expenses:</span> <span id="sum-exp" class="loss">$0</span></div>
+            <hr style="border:0; border-top:1px solid #374151">
+            <div class="summary-row" style="font-size:1.5rem"><span>Net Profit:</span> <span id="sum-net">$0</span></div>
+            <button class="btn-continue" onclick="closeSummary()">CONTINUE TO NEXT DAY</button>
         </div>
     </div>
 
     <script>
         // --- GAME STATE ---
-        let game = {
+        let state = {
             user: "",
             money: 50000,
             city: "",
-            assets: [
-                { id: 0, name: "Coffee Shop", cost: 500, income: 50, count: 0 },
-                { id: 1, name: "Law Firm", cost: 2500, income: 300, count: 0 },
-                { id: 2, name: "Tech Startup", cost: 15000, income: 1800, count: 0 }
-            ]
+            day: 1,
+            assets: [],
+            dailyRev: 0,
+            dailyExp: 0
         };
 
-        let currentView = 'city';
+        // --- DATA ---
+        const BUSINESS_TYPES = [
+            { name: "Law Firm", category: "office", revenue: 1500, rent: 400, wages: 300 },
+            { name: "Web Design", category: "office", revenue: 2200, rent: 600, wages: 500 },
+            { name: "Jewelry Shop", category: "retail", revenue: 4500, rent: 1200, wages: 800 },
+            { name: "Coffee Shop", category: "retail", revenue: 1200, rent: 300, wages: 200 }
+        ];
 
-        // --- SCENE CONTROLLER ---
-        function showScene(sceneId) {
+        // --- SCENE LOGIC ---
+        function showScene(id) {
             document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
-            document.getElementById(sceneId + '-scene').classList.add('active');
+            document.getElementById(id + '-scene').classList.add('active');
         }
 
-        // --- FLOW LOGIC ---
-        function goToProfile() {
-            showScene('profile');
-        }
+        function goToProfile() { showScene('profile'); }
 
-        function saveUsername() {
-            const name = document.getElementById('username-input').value;
-            if (!name) return alert("Please enter a name");
-            game.user = name;
+        function saveProfile() {
+            const name = document.getElementById('name-input').value;
+            if(!name) return alert("Enter a name!");
+            state.user = name;
             showScene('city');
         }
 
         function selectCity(cityName) {
-            game.city = cityName;
+            state.city = cityName;
+            // Generate 5 random businesses for the city
+            state.assets = [];
+            for(let i=0; i<5; i++) {
+                let template = BUSINESS_TYPES[Math.floor(Math.random() * BUSINESS_TYPES.length)];
+                state.assets.push({
+                    ...template,
+                    id: i,
+                    owned: false,
+                    cost: Math.floor(template.rent * 5)
+                });
+            }
             showScene('dashboard');
             changeView('city');
-            updateHUD();
         }
 
         // --- DASHBOARD LOGIC ---
+        let currentView = 'city';
+
         function changeView(view, el) {
             currentView = view;
             if(el) {
@@ -239,81 +224,110 @@
             render();
         }
 
-        function updateHUD() {
-            document.getElementById('user-name-display').innerText = game.user;
-            document.getElementById('city-label').innerText = game.city;
-            document.getElementById('money-display').innerText = `$${Math.floor(game.money).toLocaleString()}`;
-        }
-
         function render() {
             const viewport = document.getElementById('viewport');
             viewport.innerHTML = '';
             updateHUD();
 
             if (currentView === 'city') {
-                viewport.innerHTML = `<h2 style="text-align:center">Welcome to ${game.city}</h2><p style="text-align:center; color:var(--text-dim)">Tap 'Empire' to manage your assets.</p>`;
-            } 
-            else if (currentView === 'assets') {
-                game.assets.forEach(a => {
+                viewport.innerHTML = `<h2 style="text-align:center">Welcome to ${state.city}</h2><p style="text-align:center; color:var(--text-dim)">Explore your empire assets below.</p>`;
+                state.assets.forEach(a => {
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.innerHTML = `
                         <div class="card-info">
-                            <h3>${a.name} <small>[${a.count}]</small></h3>
-                            <p>Cost: $${a.cost.toLocaleString()} | +$${a.income}/s</p>
+                            <h3>${a.name}</h3>
+                            <p>${a.owned ? '✅ ACTIVE' : '❌ VACANT'}</p>
                         </div>
-                        <button class="buy-btn" onclick="buyAsset(${a.id})" ${game.money < a.cost ? 'disabled' : ''}>BUY</button>
+                        <button class="buy-btn" onclick="lease(${a.id})" ${a.owned ? 'disabled' : ''}>
+                            ${a.owned ? 'LEASED' : 'LEASE'}
+                        </button>
                     `;
                     viewport.appendChild(card);
                 });
+            } 
+            else if (currentView === 'assets') {
+                viewport.innerHTML = `<h2>Your Empire</h2>`;
+                state.assets.forEach(a => {
+                    if(a.owned) {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <div class="card-info">
+                                <h3>${a.name}</h3>
+                                <p>Daily: $${a.revenue}</p>
+                            </div>
+                            <div style="color:var(--success)">ACTIVE</div>
+                        `;
+                        viewport.appendChild(card);
+                    }
+                });
             }
-            else if (currentView === 'supply') {
-                viewport.innerHTML = `<div class="card"><h3>Supply Center</h3><p>Coming in next update!</p></div>`;
+            else if (currentView === 'day') {
+                viewport.innerHTML = `
+                    <div style="text-align:center; padding-top:50px;">
+                        <h1 style="font-size:5rem;">📅</h1>
+                        <h2>Day ${state.day}</h2>
+                        <p>Ready to settle accounts for today?</p>
+                        <button class="btn-primary" style="width:100%; padding:20px; margin-top:30px;" onclick="processEndOfDay()">END DAY & CALCULATE</button>
+                    </div>
+                `;
             }
         }
 
-        function buyAsset(id) {
-            const a = game.assets.find(x => x.id === id);
-            if (game.money >= a.cost) {
-                game.money -= a.cost;
-                a.count++;
-                a.cost = Math.floor(a.cost * 1.4);
+        function lease(id) {
+            const a = state.assets.find(x => x.id === id);
+            if(state.money >= a.cost) {
+                state.money -= a.cost;
+                a.owned = true;
                 render();
+            } else {
+                alert("Not enough money to lease this property!");
             }
         }
 
-        // --- NAME CHANGE LOGIC ---
-        function openNameModal() {
-            document.getElementById('name-modal').style.display = 'flex';
-            document.getElementById('new-name-input').value = game.user;
+        function processEndOfDay() {
+            let rev = 0;
+            let exp = 0;
+
+            state.assets.forEach(a => {
+                if(a.owned) {
+                    rev += a.revenue;
+                    exp += (a.rent + a.wages);
+                }
+            });
+
+            state.dailyRev = rev;
+            state.dailyExp = exp;
+            state.money += (rev - exp);
+            state.day++;
+
+            // Show Summary
+            document.getElementById('sum-rev').innerText = `$${rev.toLocaleString()}`;
+            document.getElementById('sum-exp').innerText = `-$${exp.toLocaleString()}`;
+            const net = rev - exp;
+            document.getElementById('sum-net').innerText = `$${net.toLocaleString()}`;
+            document.getElementById('sum-net').style.color = net >= 0 ? 'var(--success)' : 'var(--danger)';
+            
+            document.getElementById('day-overlay').style.display = 'flex';
         }
 
-        function closeNameModal() {
-            document.getElementById('name-modal').style.display = 'none';
+        function closeSummary() {
+            document.getElementById('day-overlay').style.display = 'none';
+            render();
         }
 
-        function updateUsername() {
-            const newName = document.getElementById('new-name-input').value;
-            if(newName) {
-                game.user = newName;
-                updateHUD();
-                closeNameModal();
-            }
+        function updateHUD() {
+            document.getElementById('user-name-display').innerText = state.user;
+            document.getElementById('city-label').innerText = state.city;
+            document.getElementById('money-display').innerText = `$${Math.floor(state.money).toLocaleString()}`;
         }
 
-        // --- GAME LOOP ---
-        setInterval(() => {
-            let income = 0;
-            game.assets.forEach(a => income += (a.count * a.income));
-            game.money += income;
-            updateHUD();
-        }, 1000);
-
-        // Initialize
+        // --- INITIALIZE ---
         window.onload = () => {
             const saved = localStorage.getItem('mogul_master_save');
             if(saved) {
-                game = JSON.parse(saved);
+                state = JSON.parse(saved);
                 showScene('dashboard');
                 changeView('city');
             } else {
@@ -323,7 +337,7 @@
 
         // Auto-save
         setInterval(() => {
-            localStorage.setItem('mogul_master_save', JSON.stringify(game));
+            localStorage.setItem('mogul_master_save', JSON.stringify(state));
         }, 10000);
 
     </script>
